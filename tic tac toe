@@ -1,0 +1,183 @@
+rules = """
+Game rules:
+1.  A 'round' is one game of tic tac toe. 
+    In order for a player to win the whole game, they need to win 'b' amount of rounds.
+    'b' is defined at the start of the game and is up to the players to decide.
+
+2.  The player who goes first in a round is assigned to 'x' and the other player is assigned to 'o'.
+
+3.  Every round, the player who goes first switches.
+
+4.  When a player is prompted to make a move on the board, they enter a number from 1 to 9 that corresponds to the board shown:
+     === === ===
+    | 1 | 2 | 3 |
+     === === ===
+    | 4 | 5 | 6 |
+     === === ===
+    | 7 | 8 | 9 |
+     === === ===
+     
+5.  Enter 'restart' at any point during a round to restart that specific round. (This is meant for input errors.)
+
+6.  Enter 'quit' at any point during a round to end the entire game. A winner will then be announced.
+
+7.  After each round, players are prompted if they would like to keep playing or not. If players select no,
+    the game will end and a winner will then be announced.
+
+
+Tic Tac Toe rules:
+1. The game is played on a grid that's 3 squares by 3 squares.
+
+2. The two players are assigned to mark 'x' or mark 'o'. Players take turns putting their marks in empty squares.
+
+3. The first player to get 3 of their marks in a row (up, down, across, or diagonally) is the winner.
+
+4. When all 9 squares are full, the game is over. If no player has 3 marks in a row, the game ends in a tie.
+"""
+
+def gameboard(board):
+    print(f""" === === ===
+| {board[0]} | {board[1]} | {board[2]} |
+ === === ===
+| {board[3]} | {board[4]} | {board[5]} |
+ === === ===
+| {board[6]} | {board[7]} | {board[8]} |
+ === === ===""")
+
+def ttt(order):
+    board = [' '] * 9
+    turn = order[0]
+    player = 'x'
+    
+    while True:
+        gameboard(board)
+        move = input(turn + ', please enter your move: ')
+        if move.isdigit():
+            move = int(move) - 1
+            if move >= 0 and move <= 8:
+                if board[move] == ' ':
+                    board[move] = player
+                    if (board[0] == board[1] == board[2] == player or
+                        board[3] == board[4] == board[5] == player or
+                        board[6] == board[7] == board[8] == player or
+                        board[0] == board[3] == board[6] == player or
+                        board[1] == board[4] == board[7] == player or
+                        board[2] == board[5] == board[8] == player or
+                        board[0] == board[4] == board[8] == player or
+                        board[2] == board[4] == board[6] == player):
+                        gameboard(board)
+                        print(turn + " wins this round!")
+                        return turn
+                    else:
+                        if player == 'x':
+                            player = 'o'
+                        else:
+                            player = 'x'
+                        if turn == order[0]:
+                            turn = order[1]
+                        else:
+                            turn = order[0]
+                        if ' ' not in board:
+                            gameboard(board)
+                            print("It's a tie!")
+                            return 'tie'
+                else:
+                    print("That space is already taken.")
+            else:
+                print("Please enter a number from 1 to 9.")
+        elif move.lower() == 'restart':
+            print("OK, restarting round...")
+            return 'restart'
+        elif move.lower() == 'quit':
+            print("OK, ending game...")
+            return 'quit'
+        else:
+            print("Please enter a number from 1 to 9, 'restart', or 'quit'.")
+
+start = input("Welcome to Tic Tac Toe! Would you like to see the 'rules' or would you like to 'skip' to the game? ")
+if start == 'rules':
+    print(rules)
+    ready = input("Press enter to begin.")
+elif start == 'skip':
+    print("OK...\n")
+else:
+    print("You were supposed to enter 'rules' or 'skip' but let's just continue!")
+
+wscore = input("Choose how many rounds a player needs to win to finish the game (enter an integer or 'no limit'): ")
+if wscore.isdigit():
+    wscore = int(wscore)
+    if wscore >= 2:
+        wscore = int(wscore)
+        print("Alright, so first to win", wscore, "rounds wins!\n")
+    else:
+        wscore = 1
+        print("Alright, so first player to win 1 round wins it all!\n")
+elif wscore.lower() == 'no limit':
+    print("Alright. Enter 'quit' at any time after the game starts to finish the game.\n")
+    wscore = 100000
+else:
+    print("Not good at listening to instructions are we... It will be set to no limit.\nEnter 'quit' at any time after the game starts to finish the game.\n")
+    wscore = 100000
+
+player1 = input("Enter player 1 name: ")
+player2 = input("Enter player 2 name: ")
+order = [player1, player2]
+
+score1 = 0
+score2 = 0
+ties = 0
+
+print("\nAlright, " + player1 + " vs. " + player2 + ", begin!")
+
+while score1 < wscore and score2 < wscore:
+    result = ttt(order)
+    if result == 'quit':
+        break
+    elif result == 'tie':
+        ties += 1
+    elif result == player1:
+        score1 += 1
+    elif result == player2:
+        score2 += 1
+    if result != 'restart':
+        print(f"{player1} has {score1} win(s) and {player2} has {score2} win(s). {ties} tie(s).")
+        keepgoing = input("Keep playing? (y/n): ")
+        if keepgoing.lower() == 'y':
+            continue
+        elif keepgoing.lower() == 'n':
+            print("Ending match...\n")
+            break
+        else:
+            keepgoing = input("Invalid input. Enter 'y' for yes or 'n' for no: ")
+            if keepgoing.lower() == 'y':
+                continue
+            else:
+                print("Ending match...\n")
+                break
+        if order == [player1, player2]:
+            order = [player2, player1]
+        else:
+            order = [player1, player2]
+
+if wscore == 1:
+    if score1 == 1:
+        print(f"{player1} wins the game! You tied {ties} times. Thanks for playing!")
+    elif score2 == 1:
+        print(f"{player2} wins the game! You tied {ties} times. Thanks for playing!")
+    else:
+        print(f"No one wins! You tied {ties} times. Thanks for playing!")
+elif score1 == score2:
+    print("It's a tie! Both players had", score1, "wins. You tied", ties, "times.")
+    print("Thanks for playing!")
+elif score1 > score2:
+    print(f"""Congratulations {player1}! You win the game!
+{player1} had {score1} wins.
+{player2} had {score2} wins.
+There were {ties} ties.
+Thanks for playing!""")
+elif score2 > score1:
+    print(f"""Congratulations {player2}! You win the game!
+{player2} had {score2} wins.
+{player1} had {score1} wins.
+There were {ties} ties.
+Thanks for playing!""")
